@@ -3,7 +3,7 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-#include "SSD1309.h"
+#include "SSD1305.h"
 
 #define MENUPULL 0x18					// Menu button Pull up
 

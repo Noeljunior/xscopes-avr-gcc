@@ -35,6 +35,41 @@ PS_LF    = -mmcu=${CONF_CPU} -Wl,-Os -Wl,--gc-sections -Wl,-u,vfprintf -lprintf_
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                               FLASH FUNCTIONS
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+define UPLOAD_FLASH =
+    avrdude \
+        -C '${CONF_AVRDUDECONF}'\
+        -p '${CONF_CPU}'\
+        -P '${CONF_TTY}'\
+        -c '${CONF_PROGRAMMER}'\
+        -b '${CONF_BAUDRATE}'\
+        -e\
+        -U 'flash:w:$(1):i'
+endef
+define UPLOAD_EEPROM =
+    avrdude \
+        -C '${CONF_AVRDUDECONF}'\
+        -p '${CONF_CPU}'\
+        -P '${CONF_TTY}'\
+        -c '${CONF_PROGRAMMER}'\
+        -b '${CONF_BAUDRATE}'\
+        -D\
+        -U eeprom:w:$(1)
+endef
+define UPLOAD_FUSE =
+    avrdude \
+        -C '${CONF_AVRDUDECONF}'\
+        -p '${CONF_CPU}'\
+        -P '${CONF_TTY}'\
+        -c '${CONF_PROGRAMMER}'\
+        -b '${CONF_BAUDRATE}'\
+        -D\
+        -U fuse1:w:$(2):m -U fuse2:w:$(3):m -U fuse4:w:$(4):m -U fuse5:w:$(5):m
+endef
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                 FILES AND PATHS
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # paths
@@ -104,14 +139,15 @@ usage: ${BUILDELF}
 
 # extract flash in hex format
 ${BUILDFLASH}: ${BUILDELF}
-	@avr-objcopy -O ihex -R .eeprom $^ $@
+	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .signature $^ $@
 
 # extract eeprom in hex format
 ${BUILDEEPROM}: ${BUILDELF}
-	@#avr-objcopy -j .eeprom --change-section-lma .eeprom=0 -O ihex $^ $@
+	@avr-objcopy -j .eeprom --change-section-lma .eeprom=0 -O ihex $^ $@
 
 run: all
-	@$(call UPLOAD_FLASH,${BUILDFLASH})
+	$(call UPLOAD_FLASH,${BUILDFLASH})
+	$(call UPLOAD_EEPROM,${BUILDEEPROM})
 
 # clean the build directory
 clean:

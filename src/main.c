@@ -236,11 +236,13 @@ int main(void) {
     USARTD0.CTRLB     = 0x08;           // Enable TX
     
     // Initialize USARTE0 for External Interface Port
+    #ifdef USEEXTINT
     USARTE0.BAUDCTRLA = 0x17;   // BSCALE = -6, BSEL = 1047
     USARTE0.BAUDCTRLB = 0xA4;   // ==> 115211 bps (~115.2kbps)
     USARTE0.CTRLC     = 0x03;   // Async, No Parity, 1 stop bit, 8 data bits
     USARTE0.CTRLB     = 0x18;   // Enable RX and TX
 	USARTE0.CTRLA     = 0x20;   // Enable RX interrupt
+	#endif
 
     // Event System
     EVSYS.CH0MUX    = 0xE0;     // Event CH0 = TCE0 overflow used for ADC
@@ -281,6 +283,18 @@ int main(void) {
     sei();      // Enable global interrupts
 
 	USB_ResetInterface();
+
+    // TODO TEMP
+    PORTE_DIR |= 0x01;
+    PORTE_OUT &= ~0x01;
+    int test = 10;
+    while (test--) {
+        PORTE_OUT &= ~0x01;
+        _delay_ms(100);
+        PORTE_OUT |=  0x01;
+        _delay_ms(100);
+    }
+    // TODO end TEMP
 
     // Initialize LCD
     GLCD_LcdInit();
