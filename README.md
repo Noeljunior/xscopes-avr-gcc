@@ -3,7 +3,8 @@ This is a fork of [Xscopes-Firmware](https://github.com/ganzziani/XScopes-Firmwa
 
 #### Status
 Compiles: yes
-Tested: no
+
+Tested: yes (Xminilab rev. 2.1)
 
 ### Build
 $ make
